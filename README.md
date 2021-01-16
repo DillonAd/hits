@@ -1,5 +1,7 @@
 # Hits
 
+[![Build Status](https://dev.azure.com/dillon-adams/GitHub/_apis/build/status/hits?branchName=main)](https://dev.azure.com/dillon-adams/GitHub/_build/latest?definitionId=14&branchName=main)
+
 A simple website hit counter.
 
 ## Structure
