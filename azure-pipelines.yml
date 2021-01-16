@@ -1,0 +1,40 @@
+name: $(Build.BuildId)
+pool: Default
+
+trigger:
+  - main
+pr:
+  - main
+
+stages:
+- stage: Build
+  jobs:
+  - job: Build
+    steps:
+    - task: DockerInstaller@0
+      inputs:
+        dockerVersion: '17.09.0-ce'
+    - bash: docker build -t $(Deploy.ContainerRegistry)hits:$(Build.BuildId) .
+    - bash: docker push $(Deploy.ContainerRegistry)hits:$(Build.BuildId)
+    - bash: cp $(Deploy.ComposeFile) $(Build.ArtifactStagingDirectory)
+    - bash: cp ./run.sh $(Build.ArtifactStagingDirectory)
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathToPublish: $(Build.ArtifactStagingDirectory)
+        artifactName: $(Deploy.ArtifactName)
+- stage: Release
+  dependsOn: Build
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  jobs:
+  - deployment: Release
+    environment: Production
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - task: Bash@3
+              inputs:
+                filePath: '$(Pipeline.Workspace)/$(Deploy.ArtifactName)/run.sh'
+                arguments: '-p $(Deploy.DatabaseCredential) -s $(Deploy.Salt) -k $(Deploy.HC_Key) -d $(Deploy.DataDirectory) -t $(Build.BuildId) -r $(Deploy.ContainerRegistry)'
+      
+

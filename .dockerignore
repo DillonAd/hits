@@ -1,0 +1,12 @@
+# Files
+*.yaml
+*.yml
+*.sh
+Dockerfile
+LICENSE
+README.md
+
+# Directories
+.git
+sql
+.data

@@ -1,0 +1,19 @@
+version: "3.9"
+services:
+  api:
+    image: ${REGISTRY}hits:${TAG}
+    ports:
+      - 9999:8080
+    links:
+      - db
+    environment:
+      - CONN_STR=User ID=postgres; Password=${DATABASE_PASSWORD};Host=db;Port=5432;Database=postgres;Pooling=true;Min Pool Size=0;Max Pool Size=100;Connection Lifetime=0;
+      - SALT=${SALT}
+      - HONEYCOMB_WRITEKEY=${HC_KEY}
+  db:
+    image: postgres:13-alpine
+    volumes:
+      - ${DATA_DIR}:/var/lib/postgresql/data
+      - ./sql:/docker-entrypoint-initdb.d
+    environment:
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
